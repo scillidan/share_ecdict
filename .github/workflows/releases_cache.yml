@@ -1,0 +1,59 @@
+name: Create Releases (Cache)
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install required packagestg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install pyglossary
+        run: |
+          pip install pyglossary lxml beautifulsoup4 python-idzip
+
+      - name: Download Latest Release
+        id: download_release
+        run: |
+          LATEST_URL=$(curl -s https://api.github.com/repos/skywind3000/ECDICT/releases/latest | jq -r '.assets[] | select(.name | test("ecdict-stardict-.*\\.zip")) | .browser_download_url')
+          echo "LATEST_URL=${LATEST_URL}" >> $GITHUB_ENV
+          curl -L -o ecdict.zip $LATEST_URL
+
+      - name: Decompress archive
+        run: |
+          unzip ecdict.zip -d ecdict
+
+      - name: Run pyglossary
+        run: |
+          cd ecdict
+          STARDICT_VERSION=$(ls | grep 'stardict-ecdict-.*' | sed 's/stardict-ecdict-//;s/\// /')
+          cd stardict-ecdict-$VERSION
+          # yomichan
+          pyglossary stardict-ecdict-$VERSION.ifo ecdict-$VERSION-yomichan.zip --read-format=Stardict --write-format=Yomichan --name=ECDICT
+
+      - name: Pre-release
+        run: echo ${{ github.sha }} > Release.txt
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          tag_name: ${{ github.ref }}
+          files: |
+            ecdict/ecdict-*-yomichan.zip
