@@ -65,7 +65,7 @@ jobs:
           # dictd
           pyglossary ./_ecdict-${version}-formatted-html2ansi.txt ./ecdict-${version}-dictd --read-format=Tabfile --write-format=Stardict --write-options="dictzip=true" --name=ECDICT
           # yomichan
-          pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-${version}-yomichan.zip --read-format=Tabfile --write-format=Yomichan --name=ECDICT
+          pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-yomichan.zip --read-format=Tabfile --write-format=Yomichan --name=ECDICT
 
       - name: Create zip files
         run: |
