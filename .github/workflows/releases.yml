@@ -63,7 +63,7 @@ jobs:
           # sdcv
           pyglossary ./_ecdict-${version}-formatted-html2ansi.txt ./ecdict-${version}-sdcv --read-format=Tabfile --write-format=Stardict --name=ECDICT
           # dictd
-          pyglossary ./_ecdict-${version}-formatted-html2ansi.txt ./ecdict-${version}-dictd --read-format=Tabfile --write-format=Stardict --write-options="dictzip=true" --name=ECDICT
+          pyglossary ./_ecdict-${version}-formatted-html2ansi.txt ./ecdict-${version}-dictd --read-format=Tabfile --write-format=DictOrg --write-options="dictzip=true" --name=ECDICT
           # yomichan
           pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-yomichan.zip --read-format=Tabfile --write-format=Yomichan --name=ECDICT
 
