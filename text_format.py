@@ -4,35 +4,32 @@
 # - Input format: word1<tab>word2<br /><br />meaning
 # - Output format: word1|word2<tab>meaning (or word1<tab>meaning if word1 == word2)
 # Authors: DeepSeek🧙‍♂️, scillidan🤡
-# Usage: python file.py <input_file> <output_file>
+# Usage: python file.py <input> <output>
 
 import sys
 import re
 
-def reformat_dictionary_file(input_filepath, output_filepath):
+def format(input, output):
     # Pattern to identify dictionary entries: word1, tab, word2, then <br /><br />
     ENTRY_PATTERN = re.compile(r'^\ufeff?([^\t]+?)\t([^\s]+?)<br /><br />')
 
     # Pattern to remove trailing <br /> tags
     TRAILING_BR_PATTERN = re.compile(r'<br />\s*$')
 
-    # Read the input file
-    with open(input_filepath, 'r', encoding='utf-8') as infile:
+    with open(input, 'r', encoding='utf-8') as infile:
         lines = infile.readlines()
 
-    output_lines = []
-
+    results = []
     for line in lines:
         # Remove line endings and trailing <br /> tags
-        line_cleaned = TRAILING_BR_PATTERN.sub('', line.rstrip('\r\n'))
-        match = ENTRY_PATTERN.match(line_cleaned)
+        result = TRAILING_BR_PATTERN.sub('', line.rstrip('\r\n'))
+        match = ENTRY_PATTERN.match(result)
 
         if match:
-            # Extract the two words
             word1, word2 = match.group(1), match.group(2)
 
             # Extract the meaning (everything after the pattern)
-            meaning = line_cleaned[match.end():]
+            meaning = result[match.end():]
 
             # Create prefix: combine words with | if different, or use word1 alone if same
             if word1.lower() == word2.lower():
@@ -41,21 +38,22 @@ def reformat_dictionary_file(input_filepath, output_filepath):
                 new_prefix = f"{word1}|{word2}\t"
 
             # Build the reformatted line
-            output_lines.append(new_prefix + meaning + '\n')
+            results.append(new_prefix + meaning + '\n')
         else:
             # Keep unmatched lines as they are
-            output_lines.append(line_cleaned + '\n')
+            results.append(result + '\n')
 
-    # Write the processed content to output file
-    with open(output_filepath, 'w', encoding='utf-8') as outfile:
-        outfile.writelines(output_lines)
+    with open(output, 'w', encoding='utf-8') as f:
+        f.writelines(results)
 
 def main():
     if len(sys.argv) != 3:
-        print("Usage: python reformat_dict.py <input_file> <output_file>")
+        print(f"Usage: python {sys.argv[0]} <input> <output>")
         sys.exit(1)
+    input = sys.argv[1]
+    output = sys.argv[2]
 
-    reformat_dictionary_file(sys.argv[1], sys.argv[2])
+    format(input, output)
 
 if __name__ == '__main__':
     main()
