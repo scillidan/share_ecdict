@@ -1,0 +1,133 @@
+name: Create Releases
+
+on:
+  push:
+    tags:
+      - "*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: extract_version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Extract short name from github.ref
+        id: tag_short
+        run: echo "short=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl make unzip dictfmt dictzip zip
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install pyglossary
+        run: |
+          pip install pyglossary lxml beautifulsoup4 python-idzip tqdm
+
+      - name: (dict-ecdict) Build dictd files
+        run: |
+          git clone --depth=1 https://github.com/tuberry/dict-ecdict
+          cd dict-ecdict
+          make
+
+      - name: (dict-ecdict) Move dictd files
+        env:
+          version: ${{ steps.extract_version.outputs.version }}
+        run: |
+          mv ./dict-ecdict/ecdict.dict.dz ./ecdict-${version}-dictd.dict.dz
+          mv ./dict-ecdict/ecdict.index ./ecdict-${version}-dictd.index
+          ls
+
+      - name: Convert with pyglossary and python scripts
+        env:
+          version: ${{ steps.extract_version.outputs.version }}
+        run: |
+          # tabfile
+          pyglossary ./ecdict-${version}-dictd.index ./_ecdict-${version}.txt --read-format=DictOrg --write-format=Tabfile --name=
+
+          # tabfile-formatted
+          python text_format.py _ecdict-${version}.txt _ecdict-${version}-formatted.txt
+
+          # stardict
+          pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-stardict --read-format=Tabfile --write-format=Stardict --name=ECDICT
+
+          # tabfile-formatted-html2ansi
+          python html2ansi.py _ecdict-${version}-formatted.txt _ecdict-${version}-formatted-html2ansi.txt
+
+          # sdcv
+          pyglossary ./_ecdict-${version}-formatted-html2ansi.txt ./ecdict-${version}-sdcv --read-format=Tabfile --write-format=Stardict --name=ECDICT
+
+          # dictd
+          pyglossary ./_ecdict-${version}-formatted-html2ansi.txt ./ecdict-${version}-dictd --read-format=Tabfile --write-format=DictOrg --write-options="dictzip=true" --name=ECDICT
+
+          # yomichan
+          pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-yomichan.zip --read-format=Tabfile --write-format=Yomichan --name=ECDICT
+
+      - name: Create ZIP files of Stardict
+        run: |
+          for base in *.ifo; do
+            prefix="${base%.ifo}"
+            if [[ ! -f "$prefix.ifo" ]]; then
+              echo "Skipping $prefix, missing $prefix.ifo"
+              continue
+            fi
+            if [[ ! -f "$prefix.idx" ]]; then
+              echo "Skipping $prefix, missing $prefix.idx"
+              continue
+            fi
+
+            # Check which dict file exists: .dict.dz or .dict
+            dict_file=""
+            if [[ -f "$prefix.dict.dz" ]]; then
+              dict_file="$prefix.dict.dz"
+            elif [[ -f "$prefix.dict" ]]; then
+              dict_file="$prefix.dict"
+            else
+              echo "Skipping $prefix, missing $prefix.dict.dz or $prefix.dict"
+              continue
+            fi
+            echo "Creating ${prefix}.zip from $prefix.ifo, $dict_file, $prefix.idx"
+            zip -j "${prefix}.zip" "$prefix.ifo" "$dict_file" "$prefix.idx"
+          done
+
+      - name: Create ZIP files of Dictd
+        env:
+          version: ${{ steps.extract_version.outputs.version }}
+        run: |
+          zip -j "ecdict-${version}-dictd.zip" \
+            "ecdict-${version}-dictd.dict.dz" \
+            "ecdict-${version}-dictd.index"
+
+      - name: Generate SHA256 checksums
+        run: |
+          for file in ecdict-*.zip _*.txt;
+          do
+            if [ -f "$file" ]; then
+              sha256sum "$file" > "$file.sha256";
+              echo "Generated checksum for $file";
+            fi
+          done
+
+      - name: Create GitHub Release and upload files
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          tag_name: ${{ github.ref }}
+          name: ${{ steps.tag_short.outputs.short }}
+          files: |
+            _*.txt
+            ecdict-*.zip
