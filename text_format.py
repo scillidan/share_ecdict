@@ -4,19 +4,19 @@
 # - Input format: word1<tab>word2<br /><br />meaning
 # - Output format: word1|word2<tab>meaning (or word1<tab>meaning if word1 == word2)
 # Authors: DeepSeek🧙‍♂️, scillidan🤡
-# Usage: python file.py <input> <output>
+# Usage: python file.py <input_file> <output_file>
 
 import sys
 import re
 
-def format(input, output):
+def format(input_file, output_file):
     # Pattern to identify dictionary entries: word1, tab, word2, then <br /><br />
     ENTRY_PATTERN = re.compile(r'^\ufeff?([^\t]+?)\t([^\s]+?)<br /><br />')
 
     # Pattern to remove trailing <br /> tags
     TRAILING_BR_PATTERN = re.compile(r'<br />\s*$')
 
-    with open(input, 'r', encoding='utf-8') as infile:
+    with open(input_file, 'r', encoding='utf-8') as infile:
         lines = infile.readlines()
 
     results = []
@@ -43,17 +43,17 @@ def format(input, output):
             # Keep unmatched lines as they are
             results.append(result + '\n')
 
-    with open(output, 'w', encoding='utf-8') as f:
+    with open(output_file, 'w', encoding='utf-8') as f:
         f.writelines(results)
 
 def main():
     if len(sys.argv) != 3:
-        print(f"Usage: python {sys.argv[0]} <input> <output>")
+        print(f"Usage: python {sys.argv[0]} <input_file> <output_file>")
         sys.exit(1)
-    input = sys.argv[1]
-    output = sys.argv[2]
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
 
-    format(input, output)
+    format(input_file, output_file)
 
 if __name__ == '__main__':
     main()
