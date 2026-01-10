@@ -7,7 +7,7 @@ Data from [ECDICT-ultimate](https://github.com/skywind3000/ECDICT-ultimate), ext
 ## Usage
 
 1. Download files from [Releases](https://github.com/scillidan/share_ecdict/releases).
-2. Use them in GoldenDict (StarDict format), sdcv, dictd, Yomichan/Yomitan.
+2. Use them in GoldenDict (StarDict format), sdcv, dictd.
 3. See preview screenshot [here](asset/).
 
 ### sdcv
