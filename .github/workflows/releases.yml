@@ -63,15 +63,14 @@ jobs:
           # tabfile
           pyglossary ./ecdict-${version}-dictd.index ./_ecdict-${version}.txt --read-format=DictOrg --write-format=Tabfile --name=
 
+          # tabfile-formatted
+          python text_format.py _ecdict-${version}.txt _ecdict-${version}-formatted.txt
+
           # stardict
           pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-stardict --read-format=Tabfile --write-format=Stardict --name=ECDICT
 
-          if [ -f "html2ansi.py" ]; then
-            # tabfile-formatted-html2ansi
-            python html2ansi.py _ecdict-${version}-formatted.txt _ecdict-${version}-formatted-html2ansi.txt
-          else
-            cp _ecdict-${version}-formatted.txt _ecdict-${version}-formatted-html2ansi.txt
-          fi
+          # tabfile-formatted-html2ansi
+          python html2ansi.py _ecdict-${version}-formatted.txt _ecdict-${version}-formatted-html2ansi.txt
 
           # sdcv
           pyglossary ./_ecdict-${version}-formatted-html2ansi.txt ./ecdict-${version}-sdcv --read-format=Tabfile --write-format=Stardict --name=ECDICT
