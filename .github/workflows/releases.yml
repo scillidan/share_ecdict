@@ -34,9 +34,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install pyglossary
-        run: |
-          pip install pyglossary lxml beautifulsoup4 python-idzip tqdm
+      - name: Install pyglossary and dependencies
+        run: pip install pyglossary lxml beautifulsoup4 python-idzip tqdm pyicu
 
       - name: (dict-ecdict) Build dictd files
         run: |
@@ -117,7 +116,7 @@ jobs:
 
       - name: Generate SHA256 checksums
         run: |
-          for file in ecdict-*.zip _*.txt;
+          for file in _*.txt *.zip *.slob;
           do
             if [ -f "$file" ]; then
               sha256sum "$file" > "$file.sha256";
@@ -133,4 +132,5 @@ jobs:
           name: ${{ steps.tag_short.outputs.short }}
           files: |
             _*.txt
-            ecdict-*.zip
+            *.zip
+            *.slob
