@@ -77,6 +77,9 @@ jobs:
           # yomichan
           pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-yomichan.zip --read-format=Tabfile --write-format=Yomichan --name=ECDICT
 
+          # aard2
+          pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-aard2.slob --read-format=Tabfile --write-format=Aard2Slob --name=ECDICT
+
       - name: Create ZIP files of Stardict
         run: |
           for base in *.ifo; do
