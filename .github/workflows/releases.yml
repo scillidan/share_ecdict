@@ -84,20 +84,21 @@ jobs:
           # aard2
           pyglossary ./_ecdict-${version}-formatted.txt ./ecdict-${version}-aard2.slob --read-format=Tabfile --write-format=Aard2Slob --name=ECDICT
 
-      - name: Create ZIP files of Stardict
+      - name: ZIP Stardict
         run: |
           version="${{ steps.get_version.outputs.version }}"
           for base in *.ifo; do
             prefix="${base%.ifo}"
-            zip -j "${prefix}.zip" "$prefix.ifo" "$prefix.dict.dz" "$prefix.idx" 2>/dev/null || true
+            zip -j "${prefix}.zip" "$prefix.ifo" "$prefix.dict" "$prefix.idx" 2>/dev/null || true
           done
 
-      - name: Create ZIP files of Dictd
+      - name: ZIP dictd
         run: |
           version="${{ steps.get_version.outputs.version }}"
-          zip -j "ecdict-${version}-dictd.zip" \
-            "ecdict-${version}-dictd.dict.dz" \
-            "ecdict-${version}-dictd.index"
+          prefix=ecdict
+          zip -j "${prefix}-${version}-dictd.zip" \
+            "${prefix}-${version}-dictd.dict.dz" \
+            "${prefix}-${version}-dictd.index"
 
       - name: Generate SHA256 checksums
         run: |
