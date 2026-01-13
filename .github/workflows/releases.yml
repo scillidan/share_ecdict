@@ -17,6 +17,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,7 +87,6 @@ jobs:
 
       - name: ZIP Stardict
         run: |
-          version="${{ steps.get_version.outputs.version }}"
           for base in *.ifo; do
             prefix="${base%.ifo}"
             zip -j "${prefix}.zip" "$prefix.ifo" "$prefix.dict" "$prefix.idx" 2>/dev/null || true
