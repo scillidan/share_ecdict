@@ -1,6 +1,6 @@
 # share_ecdict
 
-[![Create Releases](https://github.com/scillidan/share_ecdict/actions/workflows/releases.yml/badge.svg)](https://github.com/scillidan/share_ecdict/actions/workflows/releases.yml)
+[![Release](https://github.com/scillidan/share_ecdict/actions/workflows/release.yml/badge.svg)](https://github.com/scillidan/share_ecdict/actions/workflows/release.yml)
 
 Data from [ECDICT-ultimate](https://github.com/skywind3000/ECDICT-ultimate), extracted by [dict-ecdict](https://github.com/tuberry/dict-ecdict). See more on [ECDICT](https://github.com/skywind3000/ECDICT).
 
